@@ -1,0 +1,12 @@
+/AirPlayControl.exe
+/releases/
+/jre/
+/gstreamer/
+/dist*/
+/work/
+/logs/
+/application.properties
+*.tmp
+*.log
+*.zip
+__pycache__/
