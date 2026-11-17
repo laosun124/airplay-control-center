@@ -26,6 +26,7 @@ final class ChromiumHost implements AutoCloseable {
         this.pageUrl = pageUrl;
         this.userData = Files.createTempDirectory("airplay-mse-chromium-");
         this.userData.toFile().deleteOnExit();
+        configureProfile(this.userData);
         this.browserBin = resolveBrowser();
     }
 
@@ -67,6 +68,12 @@ final class ChromiumHost implements AutoCloseable {
         return Boolean.parseBoolean(System.getProperty("airplay.mse.headless", "false"));
     }
 
+    static void configureProfile(Path userData) throws IOException {
+        // Preferences belong to this receiver's isolated browser profile.
+        Path profile = Files.createDirectories(userData.resolve("Default"));
+        Files.writeString(profile.resolve("Preferences"), "{\"translate\":{\"enabled\":false},\"edge\":{\"show_pip_overlay_control\":false,\"video_translate\":{\"settings_toggle_pref\":false,\"live_video_translation_enabled\":false}},\"video_hover_overlay\":{\"enabled\":false}}");
+    }
+
     private void startProcess() throws IOException {
         List<String> cmd = buildLaunchCommand(browserBin, userData, pageUrl, headless());
         ProcessBuilder pb = new ProcessBuilder(cmd);
@@ -87,7 +94,7 @@ final class ChromiumHost implements AutoCloseable {
         cmd.add("--no-first-run");
         cmd.add("--no-default-browser-check");
         cmd.add("--disable-sync");
-        cmd.add("--disable-features=TranslateUI");
+        cmd.add("--disable-features=Translate,TranslateUI,msEdgeTranslate,msTranslateVideo");
         cmd.add("--autoplay-policy=no-user-gesture-required");
         cmd.add("--disable-session-crashed-bubble");
         cmd.add("--check-for-update-interval=31536000");

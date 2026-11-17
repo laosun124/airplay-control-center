@@ -1,4 +1,4 @@
-"""Rebuild only ChromiumHost from pinned upstream v1.1.1; retain original release."""
+"""Customize the v1.1.1 browser launcher and player presentation; retain the original release."""
 from pathlib import Path
 import hashlib
 import subprocess
@@ -35,18 +35,31 @@ test = work / 'WindowCheck.java'
 test.write_text('''package com.github.serezhka.airplay.app.mse;
 import java.nio.file.Path;
 class WindowCheck {
- public static void main(String[] args) {
+ public static void main(String[] args) throws Exception {
   var window = ChromiumHost.buildLaunchCommand("edge", Path.of("profile"), "http://localhost", false);
   if (!window.contains("--window-size=1120,760") || window.stream().anyMatch(x -> x.contains("fullscreen") || x.contains("kiosk"))) throw new AssertionError(window);
   if (!window.contains("--app=http://localhost")) throw new AssertionError(window);
+  if (!window.stream().anyMatch(x -> x.startsWith("--disable-features=") && x.contains("msEdgeTranslate"))) throw new AssertionError(window);
+  Path profile = java.nio.file.Files.createTempDirectory("airplay-profile-check-");
+  ChromiumHost.configureProfile(profile);
+  String preferences = java.nio.file.Files.readString(profile.resolve("Default/Preferences"));
+  if (!preferences.contains("show_pip_overlay_control") || !preferences.contains("video_hover_overlay")) throw new AssertionError(preferences);
   var headless = ChromiumHost.buildLaunchCommand("edge", Path.of("profile"), "http://localhost", true);
   if (!headless.contains("--headless=new") || headless.contains("--window-size=1120,760")) throw new AssertionError(headless);
-  System.out.println("PASS: normal resizable app window; no fullscreen/kiosk; headless preserved.");
+  System.out.println("PASS: normal window, isolated player preferences, translation/PiP suppression and headless mode.");
  }
 }''', encoding='utf-8')
 subprocess.run(['javac', '--release', '21', '-cp', str(work)+';'+str(lib), '-d', str(work), str(test)], check=True)
 subprocess.run(['java', '-cp', str(work)+';'+str(lib), package.replace('/','.')+'WindowCheck'], check=True)
 replacement = (work/package/'ChromiumHost.class').read_bytes()
+player_path = 'BOOT-INF/classes/mse/player.html'
+with zipfile.ZipFile(original) as src:
+    player = src.read(player_path).decode('utf-8')
+assert player.count('<html lang="en">') == 1
+assert player.count('<video id="player" autoplay playsinline>') == 1
+player = player.replace('<html lang="en">', '<html lang="en" translate="no" class="notranslate">')
+player = player.replace('<meta charset="utf-8"/>', '<meta charset="utf-8"/>\n  <meta name="google" content="notranslate"/>')
+player = player.replace('<video id="player" autoplay playsinline>', '<video id="player" autoplay playsinline disablepictureinpicture>')
 with zipfile.ZipFile(original) as src, zipfile.ZipFile(output, 'w') as dst:
     changed = []
     for info in src.infolist():
@@ -54,10 +67,13 @@ with zipfile.ZipFile(original) as src, zipfile.ZipFile(output, 'w') as dst:
         if info.filename == 'BOOT-INF/classes/'+package+'ChromiumHost.class':
             data = replacement
             changed.append(info.filename)
+        elif info.filename == player_path:
+            data = player.encode('utf-8')
+            changed.append(info.filename)
         dst.writestr(info, data)
-assert len(changed) == 1
+assert len(changed) == 2
 with zipfile.ZipFile(original) as a, zipfile.ZipFile(output) as b:
     differences = [n for n in a.namelist() if a.read(n) != b.read(n)]
     assert differences == changed, differences
-(work/'verification.txt').write_text('PASS: window launch test; only ChromiumHost.class differs from upstream.\nSHA256 '+hashlib.sha256(output.read_bytes()).hexdigest(), encoding='utf-8')
+(work/'verification.txt').write_text('PASS: window launch and isolated preference tests; only ChromiumHost.class and player.html differ from upstream.\nSHA256 '+hashlib.sha256(output.read_bytes()).hexdigest(), encoding='utf-8')
 print(output)

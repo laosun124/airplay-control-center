@@ -79,7 +79,7 @@ Start-Process .\AirPlayControl.exe -ArgumentList '--self-test' -Wait
 Get-Content "$env:LOCALAPPDATA\AirPlayControl\logs\self-test.txt"
 ```
 
-`build-windowed.py` retains the original JAR and verifies that only `ChromiumHost.class` changes. It replaces `--start-fullscreen` with `--window-size=1120,760`. The launch-command self-check also covers the headless path. The control-panel self-check covers the default device name, Java-version parsing, Unicode settings, atomic saving, input validation, and dependency discovery.
+`build-windowed.py` retains the original JAR and verifies that only `ChromiumHost.class` and `mse/player.html` change. The receiver uses a normal 1120 x 760 window, isolated browser preferences, and player-page attributes to suppress translation prompts and picture-in-picture entry points. The launch-command self-check also covers the headless path. The control-panel self-check covers the default device name, Java-version parsing, Unicode settings, atomic saving, input validation, and dependency discovery.
 
 ## Credits and licenses
 

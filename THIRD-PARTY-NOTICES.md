@@ -10,7 +10,7 @@ Upstream version: v1.1.1
 
 License: MIT. The complete upstream notice is retained in `desktop-app/LICENSE.upstream` and included in release packages.
 
-The local windowed build modifies only `ChromiumHost.class`. The browser startup argument `--start-fullscreen` is replaced by `--window-size=1120,760`. The source of this change and its build script are included in this repository.
+The local build modifies `ChromiumHost.class` and `mse/player.html`. The browser starts in a normal 1120 x 760 window, uses receiver-specific profile preferences to suppress translation and video-overlay prompts, and marks the player page as non-translatable with picture-in-picture disabled for its video element. The source of these changes and the build script are included in this repository.
 
 The upstream executable JAR also includes third-party libraries, such as Spring Boot, Netty, JmDNS, and SLF4J, and bundled browser playback resources. Their original archives, license files, and notices are retained within the upstream JAR. These components remain subject to their respective licenses.
 
