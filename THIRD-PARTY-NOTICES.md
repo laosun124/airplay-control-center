@@ -16,7 +16,7 @@ The upstream executable JAR also includes third-party libraries, such as Spring 
 
 ## Java runtime
 
-No Java runtime is included in this project's Windows ZIP. Users install Java 21 or later separately. The included `Download Java.html` links to the official Eclipse Adoptium download page. Eclipse Temurin and other Java distributions are governed by their respective licenses.
+No Java runtime is included in this project's Windows ZIP. Users install Java 21 or later separately. The included `Download Java.html` links to the official Oracle Java download page. Oracle JDK is governed by the license terms shown on the Oracle download page.
 
 ## Application artwork
 

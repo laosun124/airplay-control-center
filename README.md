@@ -2,7 +2,7 @@
 
 # AirPlay Control Center
 
-A Windows desktop control panel for [Java AirPlay](https://github.com/serezhka/java-airplay), with an English Windows 11 style interface, editable receiver settings, and a normal resizable player window.
+A Windows desktop control panel for [Java AirPlay](https://github.com/serezhka/java-airplay), with configurable mirroring settings and a resizable player window.
 
 **Original AirPlay implementation:** [serezhka/java-airplay](https://github.com/serezhka/java-airplay), created by [serezhka](https://github.com/serezhka). This project adds the Windows control panel and a small player-window customization. It is an independent derivative project, not an official Apple product or an official upstream release.
 
@@ -23,9 +23,9 @@ GitHub's automatic **Source code** archives are for development. Choose the name
 
 ### Install Java
 
-Open **Download Java.html** from the ZIP, or visit the official [Eclipse Temurin Java 21 download page for Windows](https://adoptium.net/temurin/releases/?version=21&os=windows&arch=x64).
+Open **Download Java.html** from the ZIP, or visit the official [Oracle Java download page](https://www.oracle.com/java/technologies/downloads/).
 
-Choose the Windows x64 installer (JDK or JRE) and enable **Add to PATH**. Alternatively, set `JAVA_HOME` to the Java installation directory. Reopen the control panel afterward; if desktop apps still do not see Java, restart Windows.
+Choose a Windows x64 JDK installer for Java 21 or later (Java 25 is supported). Reopen the control panel after installation. If Java is not detected, set `JAVA_HOME` to the installed JDK directory or add its `bin` directory to `PATH`. Restart Windows if desktop apps still do not see the updated environment.
 
 To verify your installation in PowerShell:
 
@@ -46,7 +46,7 @@ Java 8 and Java 17 are too old for this receiver. No FFmpeg or GStreamer install
 
 Closing the control panel stops the receiver and its player processes. **Details and logs** shows receiver output and provides a shortcut to the log folder.
 
-The default name on a new installation is **AirPlay Receiver**. Your own saved name is retained on subsequent runs. Resolution and frame rate are receiver preferences; actual output is negotiated with the sending device and depends on hardware and network conditions.
+Resolution and frame rate are receiver preferences; actual output is negotiated with the sending device and depends on hardware and network conditions.
 
 ## Settings and troubleshooting
 
@@ -86,6 +86,6 @@ Get-Content "$env:LOCALAPPDATA\AirPlayControl\logs\self-test.txt"
 - Original receiver: **Sergei Fedorov (serezhka)**, [java-airplay](https://github.com/serezhka/java-airplay), MIT license.
 - Windows control panel and packaging: **laosun124**.
 - Application icon: generated artwork created for this project.
-- Java download provider: [Eclipse Adoptium](https://adoptium.net/).
+- Java download provider: [Oracle](https://www.oracle.com/java/technologies/downloads/).
 
 See [LICENSE](LICENSE), [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md), and [the upstream license](desktop-app/LICENSE.upstream). Embedded upstream libraries retain their own licenses and notices.
