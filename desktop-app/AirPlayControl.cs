@@ -180,6 +180,7 @@ class AirPlayControl {
   string themePath=Path.Combine(Data,"ui-theme.txt");
   try {themeMode=ReadTheme(themePath);} catch(IOException) {themeMode=0;} catch(UnauthorizedAccessException) {themeMode=0;}
   Find<Button>("Theme").Click+=(s,e)=>{themeMode=NextTheme(themeMode);ApplyTheme();try {File.WriteAllText(themePath,themeMode.ToString());} catch(IOException) {feedback.Text="Theme changed, but the preference could not be saved.";} catch(UnauthorizedAccessException) {feedback.Text="Theme changed, but the preference could not be saved.";}};
+  window.PreviewKeyDown+=(s,e)=>{var help=Find<System.Windows.Controls.Primitives.Popup>("HlsHelp");if(e.Key==System.Windows.Input.Key.Escape && help.IsOpen){help.IsOpen=false;e.Handled=true;}};
   Find<System.Windows.Documents.Hyperlink>("GitHub").RequestNavigate+=(s,e)=>{Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri){UseShellExecute=true});e.Handled=true;};
   ApplyTheme();
   Find<TextBlock>("EnvironmentInfo").Text="Playback: Microsoft Edge / Chrome (opens when connected)\nSettings and logs: "+Data;
@@ -209,9 +210,18 @@ class AirPlayControl {
     var bitmap=new System.Windows.Media.Imaging.RenderTargetBitmap((int)window.ActualWidth,(int)window.ActualHeight,96,96,System.Windows.Media.PixelFormats.Pbgra32);bitmap.Render(window);
     var encoder=new System.Windows.Media.Imaging.PngBitmapEncoder();encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
     using(var stream=File.Create(Path.Combine(output,new[]{"system","light","dark"}[mode]+".png")))encoder.Save(stream);
+    var info=Find<System.Windows.Controls.Primitives.ToggleButton>("HlsInfo");var help=Find<System.Windows.Controls.Primitives.Popup>("HlsHelp");
+    bool hlsBefore=hls.IsChecked==true;info.IsChecked=true;
+    window.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Background,new Action(()=>{}));window.UpdateLayout();
+    if(!help.IsOpen || (hls.IsChecked==true)!=hlsBefore)throw new Exception("HLS info popup check failed");
+    var content=(FrameworkElement)help.Child;content.UpdateLayout();
+    var helpBitmap=new System.Windows.Media.Imaging.RenderTargetBitmap((int)content.ActualWidth,(int)content.ActualHeight,96,96,System.Windows.Media.PixelFormats.Pbgra32);helpBitmap.Render(content);
+    var helpEncoder=new System.Windows.Media.Imaging.PngBitmapEncoder();helpEncoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(helpBitmap));
+    using(var stream=File.Create(Path.Combine(output,"hls-"+new[]{"system","light","dark"}[mode]+".png")))helpEncoder.Save(stream);
+    info.IsChecked=false;window.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.Background,new Action(()=>{}));if(help.IsOpen)throw new Exception("HLS info dismiss check failed");
    }
    var link=Find<System.Windows.Documents.Hyperlink>("GitHub");if(link.NavigateUri.AbsoluteUri!="https://github.com/laosun124/airplay-control-center")throw new Exception("Repository link check failed");
-   File.WriteAllText(Path.Combine(output,"result.txt"),"PASS: light/dark/system themes, preset/custom visibility, preset dimensions, repository link and rendered UI snapshots.");
+   File.WriteAllText(Path.Combine(output,"result.txt"),"PASS: light/dark/system themes, preset/custom visibility, preset dimensions, repository link, HLS help open/dismiss without changing playback, and rendered UI snapshots.");
   } finally {window.Close();}
  }
  static int SelfTest() {
