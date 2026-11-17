@@ -60,6 +60,10 @@ assert player.count('<video id="player" autoplay playsinline>') == 1
 player = player.replace('<html lang="en">', '<html lang="en" translate="no" class="notranslate">')
 player = player.replace('<meta charset="utf-8"/>', '<meta charset="utf-8"/>\n  <meta name="google" content="notranslate"/>')
 player = player.replace('<video id="player" autoplay playsinline>', '<video id="player" autoplay playsinline disablepictureinpicture>')
+start = player.index('  function startHls(')
+end = player.index('  function onCommand(', start)
+player = player[:start] + (root/'desktop-app/player-video.js').read_text(encoding='utf-8') + '\n' + player[end:]
+player = player.replace('  function showLoader() {', '  function showLoader() {\n    loader.querySelector(\'.gear\').style.display = \'\';\n    loader.querySelector(\'.loader-label\').textContent = \'Starting…\';')
 with zipfile.ZipFile(original) as src, zipfile.ZipFile(output, 'w') as dst:
     changed = []
     for info in src.infolist():

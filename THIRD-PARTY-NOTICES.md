@@ -10,7 +10,7 @@ Upstream version: v1.1.1
 
 License: MIT. The complete upstream notice is retained in `desktop-app/LICENSE.upstream` and included in release packages.
 
-The local build modifies `ChromiumHost.class` and `mse/player.html`. The browser starts in a normal 1120 x 760 window, uses receiver-specific profile preferences to suppress translation and video-overlay prompts, and marks the player page as non-translatable with picture-in-picture disabled for its video element. The source of these changes and the build script are included in this repository.
+The local build modifies `ChromiumHost.class` and `mse/player.html`. The browser starts in a normal 1120 x 760 window, uses receiver-specific profile preferences to suppress translation and video-overlay prompts, and marks the player page as non-translatable with picture-in-picture disabled for its video element. The player also routes direct MP4/video-file links to browser video playback, upgrades Bilibili CDN HTTP video links to HTTPS, and displays playback failures. The source of these changes and the build script are included in this repository.
 
 The upstream executable JAR also includes third-party libraries, such as Spring Boot, Netty, JmDNS, and SLF4J, and bundled browser playback resources. Their original archives, license files, and notices are retained within the upstream JAR. These components remain subject to their respective licenses.
 
